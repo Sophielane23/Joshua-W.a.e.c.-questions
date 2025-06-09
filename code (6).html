@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TASUED Post UTME Quiz</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    :root {
+      --font-family: 'Poppins', sans-serif;
+      --color-bg: #ffffff;
+      --color-primary: #111827;
+      --color-secondary: #6b7280;
+      --color-accent: #111827;
+      --color-shadow: rgba(17, 24, 39, 0.1);
+      --color-correct: #16a34a;
+      --color-wrong: #dc2626;
+      --transition-fast: 0.3s ease;
+      --max-width: 1200px;
+      --border-radius: 0.75rem;
+    }
+
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      background: url('https://upload.wikimedia.org/wikipedia/en/f/f2/Tai_Solarin_University_of_Education_logo.png') center top no-repeat;
+      background-size: contain;
+      background-color: var(--color-bg);
+      min-height: 100vh;
+      color: var(--color-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1rem 4rem;
+    }
+
+    /* Overlay fade behind content for readability */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(255 255 255 / 0.95);
+      z-index: 0;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: var(--max-width);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--color-bg);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 12px var(--color-shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      margin-bottom: 3rem;
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: var(--color-primary);
+      border-radius: var(--border-radius);
+      z-index: 10;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem 0;
+      text-align: center;
+      color: var(--color-primary);
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin: 0 0 2.5rem 0;
+      text-align: center;
+      color: var(--color-secondary);
+    }
+
+    .subject-selector {
+      margin: 0 auto 3rem auto;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      max-width: 360px;
+      user-select: none;
+      font-size: 1rem;
+      color: var(--color-primary);
+    }
+
+    .subject-selector label {
+      align-self: center;
+    }
+
+    select#subject-select {
+      flex-grow: 1;
+      padding: 0.6rem 1rem;
+      font-size: 1.125rem;
+      border-radius: var(--border-radius);
+      border: 2px solid var(--color-secondary);
+      background-color: #f9fafb;
+      color: var(--color-primary);
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+      outline-offset: 3px;
+      outline-color: transparent;
+      font-weight: 600;
+      user-select: none;
+    }
+    select#subject-select:hover,
+    select#subject-select:focus-visible {
+      border-color: var(--color-accent);
+      outline-color: var(--color-accent);
+      outline-style: solid;
+      outline-width: 2px;
+    }
+
+    section#quiz.card {
+      background: var(--color-bg);
+      padding: 3rem 3rem 2.5rem 3rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 16px 32px var(--color-shadow);
+      user-select: none;
+      min-height: 320px;
+      transition: background-color 0.4s ease;
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .comrade-name {
+      text-align: right;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      color: var(--color-secondary);
+      user-select: none;
+      user-select: none;
+      letter-spacing: 0.05em;
+    }
+
+    .question-number {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-secondary);
+      margin-bottom: 0.65rem;
+      user-select: none;
+    }
+
+    .question-text {
+      font-weight: 700;
+      font-size: 1.375rem;
+      margin-bottom: 2rem;
+      color: var(--color-primary);
+      line-height: 1.3;
+    }
+
+    ul.answers {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      display: grid;
+      gap: 1.2rem;
+      flex-grow: 1;
+    }
+
+    button.answer-btn {
+      background: #f9fafb;
+      border: 2px solid var(--color-shadow);
+      border-radius: var(--border-radius);
+      padding: 0.9rem 1.25rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      text-align: left;
+      cursor: pointer;
+      transition:
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        color var(--transition-fast);
+      user-select: none;
+    }
+
+    button.answer-btn:hover,
+    button.answer-btn:focus-visible {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 12px var(--color-accent);
+      outline: none;
+    }
+
+    button.answer-btn.selected.correct {
+      background-color: #dcfce7;
+      border-color: var(--color-correct);
+      color: var(--color-correct);
+      box-shadow: 0 0 16px var(--color-correct);
+    }
+
+    button.answer-btn.selected.wrong {
+      background-color: #fee2e2;
+      border-color: var(--color-wrong);
+      color: var(--color-wrong);
+      box-shadow: 0 0 16px var(--color-wrong);
+    }
+
+    .feedback-message {
+      margin-top: 1.25rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      user-select: text;
+      min-height: 1.75rem;
+      min-width: 300px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+    .feedback-message.correct {
+      color: var(--color-correct);
+    }
+    .feedback-message.wrong {
+      color: var(--color-wrong);
+    }
+
+    .navigation {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      gap: 1rem;
+    }
+
+    .navigation button {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color var(--transition-fast);
+      min-width: 140px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navigation button:disabled {
+      background: var(--color-secondary);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .navigation button:hover:not(:disabled),
+    .navigation button:focus-visible:not(:disabled) {
+      background-color: #222222;
+      outline: none;
+    }
+
+    .progress {
+      max-width: var(--max-width);
+      margin: 1rem auto 0 auto;
+      font-weight: 600;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--color-secondary);
+      user-select: none;
+    }
+
+    /* Passcode overlay */
+    #passcode-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fefefe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      padding: 2rem;
+    }
+
+    #passcode-overlay > div {
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 36px var(--color-shadow);
+      border-radius: var(--border-radius);
+      background: var(--color-bg);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    #passcode-overlay h2 {
+      font-size: 2.25rem;
+      margin-bottom: 1.25rem;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    #passcode-overlay p {
+      font-size: 1.1rem;
+      color: var(--color-secondary);
+      margin-top: 0;
+      margin-bottom: 2.5rem;
+    }
+
+    #passcode-input {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      border: 2px solid var(--color-secondary);
+      border-radius: var(--border-radius);
+      outline-offset: 3px;
+      transition: border-color var(--transition-fast);
+      color: var(--color-primary);
+      text-align: center;
+      letter-spacing: 0.3em;
+      box-sizing: border-box;
+    }
+
+    #passcode-input:focus {
+      border-color: var(--color-accent);
+      outline-color: var(--color-accent);
+      outline-style: solid;
+      outline-width: 3px;
+    }
+
+    #passcode-error {
+      color: var(--color-wrong);
+      font-weight: 700;
+      margin-top: 0.85rem;
+      min-height: 1.4rem;
+      font-size: 1rem;
+    }
+
+    #passcode-submit {
+      margin-top: 2.5rem;
+      background-color: var(--color-accent);
+      border: none;
+      color: white;
+      padding: 1.15rem 2.5rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      transition: background-color var(--transition-fast);
+      user-select: none;
+    }
+    #passcode-submit:hover,
+    #passcode-submit:focus-visible {
+      background-color: #222222;
+      outline: none;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 1.5rem 1.5rem 3rem;
+      font-size: 1rem;
+      color: var(--color-secondary);
+      user-select: none;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.25rem;
+      }
+      h2 {
+        font-size: 1rem;
+      }
+      section#quiz.card {
+        padding: 2rem 1.5rem 2rem 1.5rem;
+        min-height: 280px;
+      }
+      .navigation {
+        max-width: 100%;
+        padding: 0 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .navigation button {
+        min-width: 140px;
+        flex: 1 1 45%;
+      }
+      .subject-selector {
+        max-width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .subject-selector label {
+        flex-basis: 100%;
+      }
+      select#subject-select {
+        flex-grow: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    TASUED Post UTME Quiz
+  </header>
+
+  <main role="main" aria-live="polite" aria-atomic="true">
+    <h1>Test Your Knowledge</h1>
+    <h2>Practice WAEC-style Questions for TASUED Post UTME</h2>
+
+    <div class="subject-selector">
+      <label for="subject-select">Select Subject:</label>
+      <select id="subject-select" aria-label="Select subject for quiz">
+        <option value="all">All Subjects</option>
+        <option value="school_environment">School Environment</option>
+        <option value="nigeria">Nigeria</option>
+        <option value="social_science">Social Science</option>
+        <option value="english">English</option>
+        <option value="mathematics">Mathematics</option>
+        <option value="economics">Economics</option>
+      </select>
+    </div>
+
+    <section id="quiz" class="card" aria-describedby="progress-text" aria-label="Quiz Question">
+      <p class="comrade-name" aria-hidden="true">Comrade Eniola</p>
+      <p class="question-number" id="question-number"></p>
+      <p class="question-text" id="question-text"></p>
+      <ul class="answers" id="answers" role="list"></ul>
+      <p class="feedback-message" id="feedback-message" aria-live="polite" aria-atomic="true"></p>
+
+      <div class="navigation">
+        <button id="prev-btn" type="button" aria-label="Previous question" disabled>Previous</button>
+        <button id="next-btn" type="button" aria-label="Next question" disabled>Next</button>
+      </div>
+      <p class="progress" id="progress-text"></p>
+    </section>
+  </main>
+
+  <footer>Created by Comrade Eniola</footer>
+
+  <div id="passcode-overlay" role="dialog" aria-modal="true" aria-labelledby="passcode-title">
+    <div>
+      <h2 id="passcode-title">Enter Passcode to Access</h2>
+      <p>Please enter the 4-digit passcode.</p>
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="passcode-input" aria-describedby="passcode-error" aria-label="Passcode input" autocomplete="off" />
+      <p id="passcode-error" aria-live="assertive" aria-atomic="true"></p>
+      <button id="passcode-submit" type="button">Enter</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const PASSCODE = '0328';
+
+      // Generate dummy questions (100 per subject) with variations
+      function generateDummyQuestions(subjectKey) {
+        // Base questions per subject with 3 variations
+        const baseQuestions = {
+          school_environment: [
+            "Where is TASUED located?",
+            "TASUED focuses primarily on what type of education?",
+            "What colors represent TASUED's official colors?"
+          ],
+          nigeria: [
+            "Lagos is located in which region of Nigeria?",
+            "Nigeria gained independence in which year?",
+            "Who was Nigeria's first president?"
+          ],
+          social_science: [
+            "Which of these is a social science?",
+            "The study of human societies is called:",
+            "What does GDP stand for in economics?"
+          ],
+          english: [
+            "Choose the correct spelling:",
+            "The plural form of 'analysis' is:",
+            "Identify the noun in: 'The quick brown fox jumps over the lazy dog.'"
+          ],
+          mathematics: [
+            "What is the square root of 144?",
+            "If x + 3 = 7, what is the value of x?",
+            "What is 15% of 200?"
+          ],
+          economics: [
+            "The economic problem deals with:",
+            "Demand refers to:",
+            "What is inflation?"
+          ],
+        };
+
+        // Sample answers mapped by subject and question index mod 3
+        const sampleAnswers = {
+          school_environment: [
+            ["Ogun State", "Lagos", "Kano", "Kaduna"],
+            ["Education and Teacher Training", "Law", "Technical Education", "Business"],
+            ["Red, Yellow and Black", "Blue and White", "Green and White", "Purple and Yellow"]
+          ],
+          nigeria: [
+            ["South West", "South East", "North West", "North East"],
+            ["1960", "1957", "1970", "1963"],
+            ["Nnamdi Azikiwe", "Obafemi Awolowo", "Akinwande Oluwole Babatunde", "Yemi Osinbajo"]
+          ],
+          social_science: [
+            ["Economics", "Biology", "Chemistry", "Mathematics"],
+            ["Sociology", "Physics", "Philosophy", "Geology"],
+            ["Gross Domestic Product", "Global Debt Problem", "Government Development Plan", "General Dynamic Protocol"]
+          ],
+          english: [
+            ["Accommodate", "Accomodate", "Acommodate", "Acomodate"],
+            ["Analyses", "Analysis", "Analysises", "Analys"],
+            ["dog", "fox", "quick", "jumps"]
+          ],
+          mathematics: [
+            ["12", "10", "14", "16"],
+            ["4", "3", "10", "7"],
+            ["30", "20", "25", "40"]
+          ],
+          economics: [
+            ["Scarcity and choice", "Price fixing", "Inflation only", "Employment only"],
+            ["Consumer willingness to buy", "Quantity of goods consumed", "Need for goods", "Supply of goods"],
+            ["The general increase in prices", "The value of money", "Government tax", "Stock market value"]
+          ],
+        };
+
+        const questions = [];
+        for (let i = 1; i <= 100; i++) {
+          const baseIndex = (i - 1) % 3; // to cycle base questions
+          questions.push({
+            subject: subjectKey,
+            question: `${i}. ${baseQuestions[subjectKey][baseIndex]}`,
+            answers: sampleAnswers[subjectKey][baseIndex],
+            correct: 0 // always 1st option correct for simplicity
+          });
+        }
+        return questions;
+      }
+
+      // Combine all subject questions into full list
+      const subjects = ["school_environment", "nigeria", "social_science", "english", "mathematics", "economics"];
+      let questions = [];
+      for (const subj of subjects) {
+        questions = questions.concat(generateDummyQuestions(subj));
+      }
+
+      // Fisher-Yates shuffle
+      function shuffleArray(array) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      // Dom refs
+      const passcodeOverlay = document.getElementById('passcode-overlay');
+      const passcodeInput = document.getElementById('passcode-input');
+      const passcodeSubmit = document.getElementById('passcode-submit');
+      const passcodeError = document.getElementById('passcode-error');
+      const questionNumberEl = document.getElementById('question-number');
+      const questionTextEl = document.getElementById('question-text');
+      const answersListEl = document.getElementById('answers');
+      const feedbackMessageEl = document.getElementById('feedback-message');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const progressText = document.getElementById('progress-text');
+      const subjectSelect = document.getElementById('subject-select');
+      const quizCard = document.getElementById('quiz');
+      const main = document.querySelector('main');
+
+      let currentIndex = 0;
+      let filteredQuestions = [];
+      let answered = [];
+
+      // Background colors cycle on question change
+      const bgColors = [
+        '#f9fafb', '#e0f2fe', '#fef3c7', '#dcfce7', '#fee2e2', '#ede9fe'
+      ];
+      function updateCardBackground() {
+        quizCard.style.backgroundColor = bgColors[currentIndex % bgColors.length];
+      }
+
+      // Filter and shuffle by subject
+      function filterQuestionsBySubject(subject) {
+        if (subject === 'all') return shuffleArray(questions);
+        return shuffleArray(questions.filter(q => q.subject === subject));
+      }
+
+      // Lock app - Passcode overlay on
+      function lockQuiz() {
+        passcodeOverlay.style.display = 'flex';
+        passcodeInput.value = '';
+        passcodeInput.focus();
+        main.setAttribute('aria-hidden', 'true');
+      }
+
+      // Unlock app - hide passcode overlay and start quiz
+      function unlockQuiz() {
+        passcodeOverlay.style.display = 'none';
+        main.removeAttribute('aria-hidden');
+        startQuiz();
+      }
+
+      // Start or reset quiz
+      function startQuiz() {
+        const subj = subjectSelect.value;
+        filteredQuestions = filterQuestionsBySubject(subj);
+        answered = new Array(filteredQuestions.length).fill(null);
+        currentIndex = 0;
+        updateCardBackground();
+        renderQuestion(currentIndex);
+        updateNavigation();
+        updateProgress();
+        feedbackMessageEl.textContent = '';
+      }
+
+      // Render question and answers
+      function renderQuestion(index) {
+        if (filteredQuestions.length === 0) {
+          questionNumberEl.textContent = '';
+          questionTextEl.textContent = 'No questions available for the selected subject.';
+          answersListEl.innerHTML = '';
+          feedbackMessageEl.textContent = '';
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          progressText.textContent = '';
+          return;
+        }
+        const q = filteredQuestions[index];
+        questionNumberEl.textContent = `Question ${index + 1} of ${filteredQuestions.length}`;
+        questionTextEl.textContent = q.question;
+        answersListEl.innerHTML = '';
+        feedbackMessageEl.textContent = '';
+
+        q.answers.forEach((answer, i) => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'answer-btn';
+          btn.textContent = answer;
+          btn.setAttribute('aria-pressed', 'false');
+          btn.setAttribute('data-index', i);
+          if (answered[index] !== null) {
+            btn.disabled = true;
+            if (i === answered[index]) {
+              btn.classList.add(i === q.correct ? 'correct' : 'wrong');
+              btn.setAttribute('aria-pressed', 'true');
+            }
+          }
+          btn.addEventListener('click', () => selectAnswer(index, i));
+          li.appendChild(btn);
+          answersListEl.appendChild(li);
+        });
+        updateProgress();
+      }
+
+      // Handle answer selection
+      function selectAnswer(qIndex, aIndex) {
+        if (answered[qIndex] !== null) return; // no re-answer
+        answered[qIndex] = aIndex;
+        const q = filteredQuestions[qIndex];
+        const buttons = answersListEl.querySelectorAll('button.answer-btn');
+        buttons.forEach(btn => {
+          btn.disabled = true;
+          const btnIdx = Number(btn.getAttribute('data-index'));
+          if (btnIdx === aIndex) {
+            btn.classList.add(btnIdx === q.correct ? 'correct' : 'wrong');
+            btn.setAttribute('aria-pressed', 'true');
+          }
+        });
+        if (aIndex === q.correct) {
+          feedbackMessageEl.textContent = "Correct! Well done.";
+          feedbackMessageEl.className = 'feedback-message correct';
+        } else {
+          feedbackMessageEl.textContent = `Wrong. The correct answer is: "${q.answers[q.correct]}".`;
+          feedbackMessageEl.className = 'feedback-message wrong';
+        }
+        updateNavigation();
+        updateProgress();
+      }
+
+      // Navigation
+      function updateNavigation() {
+        prevBtn.disabled = currentIndex <= 0;
+        nextBtn.disabled = (answered[currentIndex] === null) || (currentIndex >= filteredQuestions.length - 1);
+      }
+
+      function updateProgress() {
+        const numAnswered = answered.filter(a => a !== null).length;
+        progressText.textContent = `Answered ${numAnswered} of ${filteredQuestions.length}`;
+      }
+
+      function goPrev() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateCardBackground();
+          renderQuestion(currentIndex);
+          updateNavigation();
+          feedbackMessageEl.textContent = '';
+        }
+      }
+
+      function goNext() {
+        if (currentIndex < filteredQuestions.length -1 && answered[currentIndex] !== null) {
+          currentIndex++;
+          updateCardBackground();
+          renderQuestion(currentIndex);
+          updateNavigation();
+          feedbackMessageEl.textContent = '';
+        }
+      }
+
+      // Passcode events
+      passcodeSubmit.addEventListener('click', () => {
+        const val = passcodeInput.value.trim();
+        if (val === PASSCODE) {
+          passcodeError.textContent = '';
+          unlockQuiz();
+        } else {
+          passcodeError.textContent = 'Incorrect passcode. Please try again.';
+          passcodeInput.value = '';
+          passcodeInput.focus();
+        }
+      });
+
+      passcodeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') passcodeSubmit.click();
+      });
+
+      prevBtn.addEventListener('click', goPrev);
+      nextBtn.addEventListener('click', goNext);
+      subjectSelect.addEventListener('change', () => {
+        startQuiz();
+        feedbackMessageEl.textContent = '';
+      });
+
+      // Initialize locked state
+      lockQuiz();
+    })();
+  </script>
+</body>
+</html>
+
